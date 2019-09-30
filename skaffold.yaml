@@ -1,0 +1,19 @@
+apiVersion: skaffold/v1beta2
+kind: Config
+build:
+  artifacts:
+  - image: gcr.io/jenkinsx-dev/kaniko-test
+    context: .
+    docker: {}
+  tagPolicy:
+    envTemplate:
+      template: '{{.IMAGE_NAME}}:{{.VERSION}}'
+  kaniko:
+    buildContext:
+#      gcsBucket: jenkinsx-dev-skaffold-kaniko
+      localDir: {}
+    image: gcr.io/kaniko-project/executor:debug
+    pullSecretName: kaniko-secret
+    namespace: jx
+deploy:
+  kubectl: {}
