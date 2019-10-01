@@ -1,0 +1,142 @@
+buildPack: none
+pipelineConfig:
+  pipelines:
+    release:
+      pipeline:
+        agent:
+          image: gcr.io/kaniko-project/executor:9912ccbf8d22bbafbf971124600fbb0b13b9cbd6
+        stages:
+        - name: release
+          environment:
+          - name: GIT_COMMITTER_EMAIL
+            value: jenkins-x@googlegroups.com
+          - name: GIT_COMMITTER_NAME
+            value: jenkins-x-bot
+          - name: GIT_AUTHOR_EMAIL
+            value: jenkins-x@googlegroups.com
+          - name: GIT_AUTHOR_NAME
+            value: jenkins-x-bot
+          - name: GOOGLE_APPLICATION_CREDENTIALS
+            value: /builder/home/kaniko-secret.json
+          - name: GOPROXY	
+            value: http://jenkins-x-athens-proxy
+          steps:
+
+          - image: gcr.io/jenkinsxio/builder-go:0.1.811
+            command: make	
+            args:	
+              - linux
+            dir: /workspace/source/
+ 
+          - image: gcr.io/jenkinsxio/builder-go:0.1.811
+            command: jx
+            args:
+              - step
+              - credential
+              - -s
+              - kaniko-secret
+              - -k
+              - kaniko-secret
+              - -f
+              - /builder/home/kaniko-secret.json
+
+          - image: gcr.io/kaniko-project/executor:9912ccbf8d22bbafbf971124600fbb0b13b9cbd6
+            command: /kaniko/executor
+            args:
+              - --dockerfile=Dockerfile
+              - --destination=gcr.io/jenkinsxio/status-badge:${inputs.params.version}
+              - --context=/workspace/source
+              - --cache-repo=gcr.io/jenkinsxio/cache-status
+              - --cache=true
+              - --cache-dir=/workspace
+
+          - image: gcr.io/jenkinsxio/builder-go:0.1.811
+            command: jx
+            args:
+              - step
+              - changelog
+              - --version
+              - v$VERSION
+
+          - image: gcr.io/jenkinsxio/builder-go:0.1.811
+            command: make
+            args:
+              - build
+            dir: /workspace/source/charts/status-badge
+
+          - image: gcr.io/jenkinsxio/builder-go:0.1.811
+            dir: /workspace/source/charts/status-badge
+            command: jx
+            args:
+              - step
+              - helm
+              - release
+
+          - image: gcr.io/jenkinsxio/builder-go:0.1.811
+            dir: /workspace/source/charts/status-badge
+            command: jx
+            args:
+              - promote
+              - -b
+              - --all-auto
+              - --timeout
+              - 1h
+              - --version
+              - $VERSION
+
+    pullRequest:
+      pipeline:
+        agent:
+          image: gcr.io/kaniko-project
+        stages:
+        - name: build-and-push
+          environment:
+          - name: GOOGLE_APPLICATION_CREDENTIALS
+            value: /builder/home/kaniko-secret.json
+          - name: GOPROXY	
+            value: http://jenkins-x-athens-proxy
+          steps:
+          
+          - image: gcr.io/jenkinsxio/builder-go:0.1.811
+            command: make	
+            args:	
+              - linux
+            dir: /workspace/source/
+ 
+          - image: gcr.io/jenkinsxio/builder-go:0.1.811
+            command: jx
+            args:
+              - step 
+              - credential
+              - -s
+              - kaniko-secret
+              - -k
+              - kaniko-secret
+              - -f
+              - /builder/home/kaniko-secret.json
+
+          - image: gcr.io/kaniko-project/executor:9912ccbf8d22bbafbf971124600fbb0b13b9cbd6
+            command: /kaniko/executor
+            args:
+              - --dockerfile=Dockerfile
+              - --destination=gcr.io/jenkinsxio/status-badge:${inputs.params.version}
+              - --context=/workspace/source
+              - --cache-repo=gcr.io/jenkinsxio/cache-status
+              - --cache=true
+              - --cache-dir=/workspace
+
+          - image: gcr.io/jenkinsxio/builder-go:0.1.811
+            command: make	
+            args:	
+              - preview	
+            dir: /workspace/source/charts/preview	
+
+          - image: gcr.io/jenkinsxio/builder-go:0.1.811
+            command: jx	
+            dir: /workspace/source/charts/preview	
+            args:	
+              - preview	
+              - --app	
+              - status-badge
+              - --dir	
+              - /workspace/source/charts/preview
