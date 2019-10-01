@@ -25,7 +25,7 @@ test:
 full: $(PKGS)
 
 install:
-	GOBIN=${GOPATH}/bin $(GO) install -ldflags $(BUILDFLAGS) $(MAIN_GO)
+	GOBIN=${GOPATH}/bin $(GO) install -ldflags $(BUILDFLAGS) ./...
 
 fmt:
 	@FORMATTED=`$(GO) fmt $(PACKAGE_DIRS)`
@@ -35,7 +35,7 @@ clean:
 	rm -rf build release
 
 linux:
-	CGO_ENABLED=$(CGO_ENABLED) GOOS=linux GOARCH=amd64 $(GO) build -ldflags $(BUILDFLAGS) -o bin/$(NAME) $(MAIN_GO)
+	CGO_ENABLED=$(CGO_ENABLED) GOOS=linux GOARCH=amd64 $(GO) build -ldflags $(BUILDFLAGS) -o bin/$(NAME) ./...
 
 .PHONY: release clean
 
