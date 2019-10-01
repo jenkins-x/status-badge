@@ -125,18 +125,18 @@ pipelineConfig:
               - --cache=true
               - --cache-dir=/workspace
 
-          - image: gcr.io/jenkinsxio/builder-go:0.1.811
-            command: make	
-            args:	
-              - preview	
-            dir: /workspace/source/charts/preview	
+#          - image: gcr.io/jenkinsxio/builder-go:0.1.811
+#            command: make	
+#            args:	
+#              - preview	
+#            dir: /workspace/source/charts/preview	
 
-          - image: gcr.io/jenkinsxio/builder-go:0.1.811
-            command: jx	
-            dir: /workspace/source/charts/preview	
-            args:	
-              - preview	
-              - --app	
-              - status-badge
-              - --dir	
-              - /workspace/source/charts/preview
+#          - image: gcr.io/jenkinsxio/builder-go:0.1.811
+#            command: jx	
+#            dir: /workspace/source/charts/preview	
+#            args:	
+#              - preview	
+#              - --app	
+#              - status-badge
+#              - --dir	
+#              - /workspace/source/charts/preview
