@@ -72,6 +72,10 @@ pipelineConfig:
               - helm
               - release
 
+          - image: gcr.io/jenkinsxio/builder-go:0.1.811
+            dir: /workspace/source
+            command: ./updatebot.sh
+
 #          - image: gcr.io/jenkinsxio/builder-go:0.1.811
 #            dir: /workspace/source/charts/status-badge
 #            command: jx
