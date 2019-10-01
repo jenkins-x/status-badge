@@ -26,3 +26,6 @@ spec:
             - containerPort: {{ .Values.service.internalPort }}
           resources:
 {{ toYaml .Values.resources | indent 12 }}
+{{- if .Values.service.serviceAccount }}
+      serviceAccountName: {{ .Values.service.serviceAccount }}
+{{- end }}
