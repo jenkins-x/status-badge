@@ -1,6 +1,7 @@
 apiVersion: v1
+appVersion: 0.0.7
 description: A Helm chart for the status-badge
-name: status-badge
 maintainers:
 - name: Jenkins X
-version: <CORE_BACKEND_VERSION>
+name: status-badge
+version: 0.0.7
