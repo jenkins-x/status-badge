@@ -1,4 +1,4 @@
 FROM scratch
 EXPOSE 8080
-ENTRYPOINT ["/kaniko-test"]
+ENTRYPOINT ["/status-badge"]
 COPY ./bin/ /
