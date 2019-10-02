@@ -18,8 +18,8 @@ import (
 type datasource struct {
 }
 
-func (f *datasource) GetBadge(repo string) (*Badge, error) {
-	log.Printf("getting badge for '%s'", repo)
+func (f *datasource) GetBadge(org string, repo string) (*Badge, error) {
+	log.Printf("getting badge for '%s/%s'", org, repo)
 	config, err := f.createKubeConfig()
 	if err != nil {
 		log.Printf("error getting badge - %s", err)
@@ -31,7 +31,12 @@ func (f *datasource) GetBadge(repo string) (*Badge, error) {
 	}
 
 	options := metav1.ListOptions{}
-	options.LabelSelector = fmt.Sprintf("repository=%s,branch=master", repo)
+
+	if org == "" {
+		options.LabelSelector = fmt.Sprintf("repository=%s,branch=master", repo)
+	} else {
+		options.LabelSelector = fmt.Sprintf("repository=%s,owner=%s,branch=master", repo, org)
+	}
 
 	list, err := client.JenkinsV1().PipelineActivities("").List(options)
 	if err != nil {
